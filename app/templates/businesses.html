@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}All businesses - Business Scraper{% endblock %}
+
+{% block content %}
+<section>
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-semibold">All scraped businesses</h1>
+      <p class="text-sm text-slate-600">Search and filter across every job stored in PostgreSQL.</p>
+    </div>
+  </div>
+
+  <form method="get" class="mb-6 grid gap-3 sm:grid-cols-4">
+    <input name="q" value="{{ q }}" placeholder="Search name, category, address"
+           class="rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 sm:col-span-2" />
+    <select name="source" class="rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      <option value="">All sources</option>
+      {% for src in available_sources %}
+      <option value="{{ src }}" {% if source == src %}selected{% endif %}>{{ src }}</option>
+      {% endfor %}
+    </select>
+    <div class="flex gap-2">
+      <input name="city" value="{{ city }}" placeholder="City"
+             class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+      <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Apply</button>
+    </div>
+  </form>
+
+  {% if businesses %}
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for business in businesses %}
+      {% include "_business_card.html" %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+    No businesses match your filters yet. <a href="/" class="text-brand-600 hover:underline">Start a new search</a>.
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

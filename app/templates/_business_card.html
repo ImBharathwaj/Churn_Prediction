@@ -1,0 +1,54 @@
+<div class="rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 class="truncate text-base font-semibold">
+        {% if business.source_url %}
+        <a href="{{ business.source_url }}" target="_blank" rel="noopener" class="hover:text-brand-600">{{ business.name }}</a>
+        {% else %}
+        {{ business.name }}
+        {% endif %}
+      </h3>
+      {% if business.category %}
+      <p class="mt-0.5 text-xs text-slate-500">{{ business.category }}</p>
+      {% endif %}
+    </div>
+    <span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ business.source }}</span>
+  </div>
+
+  {% if business.rating is not none %}
+  <div class="mt-2 flex items-center gap-1 text-sm">
+    <span class="font-medium">{{ '%.1f' % business.rating }}</span>
+    <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.449a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.539 1.118l-3.37-2.45a1 1 0 00-1.176 0l-3.37 2.45c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.05 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" /></svg>
+    {% if business.reviews_count is not none %}
+    <span class="text-xs text-slate-500">({{ business.reviews_count }} reviews)</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <dl class="mt-3 space-y-1 text-sm">
+    {% if business.address %}
+    <div class="flex gap-2">
+      <dt class="w-16 shrink-0 text-xs uppercase tracking-wide text-slate-400">Address</dt>
+      <dd class="text-slate-700">{{ business.address }}</dd>
+    </div>
+    {% endif %}
+    {% if business.phone %}
+    <div class="flex gap-2">
+      <dt class="w-16 shrink-0 text-xs uppercase tracking-wide text-slate-400">Phone</dt>
+      <dd><a href="tel:{{ business.phone }}" class="text-brand-600 hover:underline">{{ business.phone }}</a></dd>
+    </div>
+    {% endif %}
+    {% if business.website %}
+    <div class="flex gap-2">
+      <dt class="w-16 shrink-0 text-xs uppercase tracking-wide text-slate-400">Website</dt>
+      <dd><a href="{{ business.website }}" target="_blank" rel="noopener" class="truncate text-brand-600 hover:underline">{{ business.website }}</a></dd>
+    </div>
+    {% endif %}
+    {% if business.email %}
+    <div class="flex gap-2">
+      <dt class="w-16 shrink-0 text-xs uppercase tracking-wide text-slate-400">Email</dt>
+      <dd><a href="mailto:{{ business.email }}" class="text-brand-600 hover:underline">{{ business.email }}</a></dd>
+    </div>
+    {% endif %}
+  </dl>
+</div>

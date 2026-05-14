@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Job {{ job.id }} - Business Scraper{% endblock %}
+
+{% block content %}
+<section>
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-500">Scrape job</p>
+      <h1 class="mt-1 text-2xl font-semibold">{{ job.business_type }}{% if job.business_category %} &middot; {{ job.business_category }}{% endif %}</h1>
+      <p class="text-sm text-slate-600">In {{ job.business_area }} &middot; sources: {{ job.sources }}</p>
+    </div>
+    <div class="text-right">
+      <span id="job-status-pill"
+            data-status="{{ job.status.value }}"
+            class="inline-block rounded-full px-3 py-1 text-xs font-medium
+              {% if job.status.value == 'completed' %}bg-emerald-100 text-emerald-700
+              {% elif job.status.value == 'running' %}bg-amber-100 text-amber-700
+              {% elif job.status.value == 'failed' %}bg-red-100 text-red-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+        {{ job.status.value }}
+      </span>
+      <p class="mt-1 text-sm text-slate-600"><span id="job-total">{{ total }}</span> results</p>
+    </div>
+  </div>
+
+  {% if job.error_message %}
+  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    {{ job.error_message }}
+  </div>
+  {% endif %}
+
+  {% if job.status.value in ['pending', 'running'] %}
+  <div id="loader" class="mb-6 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+    <svg class="h-5 w-5 animate-spin text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    Scraping in progress. This page will refresh automatically.
+  </div>
+  {% endif %}
+
+  <form method="get" class="mb-6">
+    <div class="flex flex-wrap gap-2">
+      <input name="q" value="{{ q }}" placeholder="Filter by name, category, or address"
+             class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 min-w-[260px]" />
+      <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Filter</button>
+      {% if q %}<a href="/jobs/{{ job.id }}" class="rounded-lg border px-4 py-2 text-sm hover:bg-slate-100">Clear</a>{% endif %}
+    </div>
+  </form>
+
+  {% if businesses %}
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for business in businesses %}
+      {% include "_business_card.html" %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+    {% if job.status.value in ['pending', 'running'] %}
+    Waiting for results...
+    {% else %}
+    No businesses found{% if q %} matching "{{ q }}"{% endif %}.
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    const pill = document.getElementById("job-status-pill");
+    if (!pill) return;
+    const status = pill.dataset.status;
+    if (status !== "pending" && status !== "running") return;
+
+    const jobId = "{{ job.id }}";
+    async function poll() {
+      try {
+        const res = await fetch(`/jobs/${jobId}/status`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.status !== status) {
+          window.location.reload();
+          return;
+        }
+        const total = document.getElementById("job-total");
+        if (total && typeof data.total_results === "number") {
+          total.textContent = data.total_results;
+        }
+      } catch (e) { /* ignore */ }
+    }
+    setInterval(poll, 3000);
+  })();
+</script>
+{% endblock %}

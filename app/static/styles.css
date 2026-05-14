@@ -1,0 +1,14 @@
+/* Minimal overrides; the bulk of styling is Tailwind via CDN. */
+
+html, body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+input:focus, select:focus, button:focus {
+  outline: none;
+}

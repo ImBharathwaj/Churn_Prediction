@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Business Scraper{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50:  "#eef2ff",
+                100: "#e0e7ff",
+                500: "#6366f1",
+                600: "#4f46e5",
+                700: "#4338ca",
+              }
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <header class="border-b bg-white">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" class="flex items-center gap-2 font-semibold text-slate-900">
+          <span class="inline-block h-7 w-7 rounded-md bg-brand-600 text-center text-white leading-7">B</span>
+          <span>Business Scraper</span>
+        </a>
+        <nav class="flex items-center gap-5 text-sm">
+          <a href="/" class="text-slate-600 hover:text-brand-600">New search</a>
+          <a href="/businesses" class="text-slate-600 hover:text-brand-600">All businesses</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-8">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-12 border-t bg-white">
+      <div class="mx-auto max-w-6xl px-6 py-6 text-xs text-slate-500">
+        Built with FastAPI + PostgreSQL. Use responsibly &mdash; respect each site's terms of service and robots.txt.
+      </div>
+    </footer>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

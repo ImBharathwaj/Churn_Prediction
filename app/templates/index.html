@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="grid gap-8 md:grid-cols-5">
+  <div class="md:col-span-3">
+    <div class="rounded-2xl border bg-white p-6 shadow-sm">
+      <h1 class="text-2xl font-semibold tracking-tight">Find businesses</h1>
+      <p class="mt-1 text-sm text-slate-600">
+        Enter a business type, optional category, and area. We'll scrape the selected sources and store results in PostgreSQL.
+      </p>
+
+      <form action="/scrape" method="post" class="mt-6 space-y-5">
+        <div>
+          <label class="mb-1 block text-sm font-medium">Business type <span class="text-red-500">*</span></label>
+          <input name="business_type" required placeholder="e.g. Restaurant, Dentist, Plumber"
+                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium">Category <span class="text-xs text-slate-400">(optional)</span></label>
+          <input name="business_category" placeholder="e.g. Italian, Cosmetic, Emergency"
+                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium">Area <span class="text-red-500">*</span></label>
+          <input name="business_area" required placeholder="e.g. Brooklyn NY, Bangalore, 94107"
+                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+        </div>
+
+        <div>
+          <span class="mb-2 block text-sm font-medium">Sources</span>
+          <div class="grid gap-2 sm:grid-cols-3">
+            {% for src in available_sources %}
+            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm hover:border-brand-500">
+              <input type="checkbox" name="sources" value="{{ src }}"
+                     {% if src in default_sources %}checked{% endif %}
+                     class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+              <span class="capitalize">{{ src.replace('_', ' ') }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if not has_places_key %}
+          <p class="mt-2 text-xs text-amber-700">
+            Tip: <code>google_places</code> requires a <code>GOOGLE_PLACES_API_KEY</code> in <code>.env</code>. It's the recommended, ToS-compliant source.
+          </p>
+          {% endif %}
+        </div>
+
+        <button type="submit"
+                class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+          Start scraping
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <aside class="md:col-span-2">
+    <div class="rounded-2xl border bg-white p-6 shadow-sm">
+      <h2 class="text-base font-semibold">Recent jobs</h2>
+      {% if recent_jobs %}
+      <ul class="mt-3 divide-y">
+        {% for job in recent_jobs %}
+        <li class="py-3 text-sm">
+          <a href="/jobs/{{ job.id }}" class="block hover:text-brand-600">
+            <div class="flex items-center justify-between">
+              <span class="font-medium">{{ job.business_type }}{% if job.business_category %} &middot; {{ job.business_category }}{% endif %}</span>
+              <span class="rounded-full px-2 py-0.5 text-xs
+                  {% if job.status.value == 'completed' %}bg-emerald-100 text-emerald-700
+                  {% elif job.status.value == 'running' %}bg-amber-100 text-amber-700
+                  {% elif job.status.value == 'failed' %}bg-red-100 text-red-700
+                  {% else %}bg-slate-100 text-slate-600{% endif %}">
+                {{ job.status.value }}
+              </span>
+            </div>
+            <div class="mt-0.5 text-xs text-slate-500">{{ job.business_area }} &middot; {{ job.total_results }} results</div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="mt-3 text-sm text-slate-500">No jobs yet. Run your first search.</p>
+      {% endif %}
+    </div>
+
+    <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+      <strong>Heads up:</strong> Scraping Google Maps directly may violate Google's Terms of Service.
+      For production use, prefer the <em>google_places</em> source (Google Places API).
+    </div>
+  </aside>
+</section>
+{% endblock %}
